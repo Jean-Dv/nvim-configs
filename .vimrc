@@ -3,11 +3,13 @@ set mouse=a
 set numberwidth=1
 set clipboard=unnamed
 syntax on
-set showcmd
+set noshowcmd
 set ruler
 set cursorline
 set encoding=utf-8
 set showmatch
+set splitbelow
+set noswapfile
 set sw=2
 set relativenumber
 set noshowmode
