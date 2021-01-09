@@ -15,18 +15,22 @@ set relativenumber
 set noshowmode
 set colorcolumn=120
 set scrolloff=8
+set nocompatible
 so ~/configs/.vim/plugins.vim
 so ~/configs/.vim/maps.vim
 so ~/configs/.vim/plugin-config.vim
 let g:python3_host_prog = '/usr/bin/python3'
 let g:loaded_python_provider = 0
 
-" Theme
-set termguicolors
-" Config theme
-let g:onedark_hide_endofbuffer=1
-let g:onedark_termcolors=256
-let g:onedark_terminal_italics=1
-" Airline onedark
-let g:airline_theme='onedark'
-colorscheme onedark
+" Important!!
+if has('termguicolors')
+  set termguicolors
+endif
+
+set background=dark
+let g:gruvbox_cotrast_dark="dark"
+let g:gruvbox_bold=1
+let g:gruvbox_italic=1
+let g:gruvbox_termcolors=256
+
+colorscheme gruvbox

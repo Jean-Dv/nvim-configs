@@ -2,6 +2,8 @@ call plug#begin('~/configs/plugged')
 
 " Themes
 Plug 'joshdick/onedark.vim'
+Plug 'sainnhe/edge'
+Plug 'morhetz/gruvbox'
 
 " Visual
 Plug 'yggdroot/indentline'
@@ -9,6 +11,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'ryanoasis/vim-devicons'
 Plug 'lilydjwg/colorizer'
+Plug 'sheerun/vim-polyglot'
 
 " Git Integration
 Plug 'mhinz/vim-signify'

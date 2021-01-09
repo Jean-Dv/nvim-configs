@@ -1,12 +1,5 @@
 let mapleader = " "
 
-"Use <c-space> to trigger completion.
-if &filetype == "javascript" || &filetype == "python" 
-  inoremap <c-space> <C-x><C-u>
-else
-  inoremap <silent><expr> <c-space> coc#refresh()
-endif
-
 " Maps general
 nmap <F5> :source ~/nvim-config/.vimrc<CR>
 vmap <F5> :source ~/nvim-config/.vimrc<CR>
@@ -24,16 +17,20 @@ nnoremap <silent> <left> :vertical resize -5<CR>
 nnoremap <silent> <up> :resize +5<CR>
 nnoremap <silent> <down> :resize -5<CR>
 nnoremap <leader>e :e $MYVIMRC<CR>
-nnoremap <C-t> :call OpenTerminal()<CR>
-nnoremap <C-w>w :call CloseBuffer()<CR>
+nmap tt <Plug>(coc-terminal-toggle)
 vnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>
 nnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>
+nmap <Leader>py <Plug>(Prettier)
+nmap <leader>j <c-w><left>
+nmap <leader>k <c-w><right>
+nmap <leader>h <c-w><up>
+nmap <leader>l <c-w><left>
 
 " Moverse al buffer siguiente con <líder> + k
-nnoremap <leader>k :bnext<CR>
+nnoremap <a-k> :bnext<CR>
 
 " Moverse al buffer anterior con <líder> + j
-nnoremap <leader>j :bprevious<CR>
+nnoremap <a-j> :bprevious<CR>
 
 " Cerrar el buffer actual con <líder> + q
 nnoremap <leader>q :bdelete<CR>
@@ -47,69 +44,80 @@ nnoremap <leader>vs :vsp<CR>
 "hacer un split horizontal
 nnoremap <leader>sp :sp<CR>
 
-" Open Terminal
-function! OpenTerminal()
-  let $NEOFETCH = '' 
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
-  let buf_num = bufnr('%')
-  let buf_type = getbufvar(buf_num, '&buftype', 'not found')
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
 
-  if buf_type == 'terminal'
-    execute 'q'
-  else
-    let terminal_height = winheight(0) / 6
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
 
-    execute terminal_height"sp term://zsh"
-    
-    execute "set nonu"
-    execute "set nornu"
-    execute "set nocursorline"
-    
-    execute "set signcolumn=no"
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
 
-    silent au BufLeave <buffer> stopinsert!
-    silent au BufWinEnter,WinEnter <buffer> startinsert!
+" Symbol renaming.
+nmap <leader>rn <Plug>(coc-rename)
 
-    execute "tnoremap <buffer> <C-w><Up> <C-\\><C-n><C-w><C-k>"
-    execute "tnoremap <buffer> <C-t> <C-\\><C-n>:q<CR>"
-    execute "tnoremap <buffer> <C-n> <C-\\><C-n>"
-    execute "tnoremap <buffer> <C-\\><C-\\> <C-\\><C-n>"
+" Formatting selected code.
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
 
-    execute "tnoremap <buffer> <C-+> <C-\\><C-w>10+<CR>"
-    execute "tnoremap <buffer> <C--> <C-\\><C-w>10+<CR>"
-    
-    execute "setlocal nobuflisted"
+" Applying codeAction to the selected region.
+" Example: `<leader>aap` for current paragraph
+xmap <leader>a  <Plug>(coc-codeaction-selected)
+nmap <leader>a  <Plug>(coc-codeaction-selected)
 
-    startinsert!
-  endif
-endfunction
+" Remap keys for applying codeAction to the current buffer.
+nmap <leader>ac  <Plug>(coc-codeaction)
+" Apply AutoFix to problem on the current line.
+nmap <leader>qf  <Plug>(coc-fix-current)
 
-augroup terminal_settings
-  autocmd!
+" Map function and class text objects
+" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
 
-  autocmd BufWinEnter,WinEnter term://* startinsert
-  autocmd BufLeave term://* stopinsert
-  
-  autocmd TermClose term://*
-    \ if (expand('<afile>') !~ "fzf") && (expand('<afile>') !~ "ranger") && (expand('<afile>') !~ "coc") |
-    \   call nvim_input('<CR>') |
-    \ endif
-augroup END
+" Remap <C-f> and <C-b> for scroll float windows/popups.
+if has('nvim-0.4.0') || has('patch-8.2.0750')
+  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+endif
 
-function! CloseBuffer()
-  let buf_len = len(getbufinfo({ 'buflisted': 1 }))
+" Use CTRL-S for selections ranges.
+" Requires 'textDocument/selectionRange' support of language server.
+nmap <silent> <C-s> <Plug>(coc-range-select)
+xmap <silent> <C-s> <Plug>(coc-range-select)
 
-  if buf_len <= 1
-    execute 'q'
-  
-    let buf_num = bufnr('%')
-    let buf_type = getbufvar(buf_num, '&buftype', 'not found')
-
-    if buf_type == 'terminal'
-      execute 'q'
-    endif
-  else
-    execute 'bp'
-    execute 'bd #'
-  endif
-endfunction
+" Mappings for CoCList
+" Show all diagnostics.
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions.
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+" Show commands.
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+" Find symbol of current document.
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+" Search workspace symbols.
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+" Do default action for next item.
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+" Resume latest coc list.
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
